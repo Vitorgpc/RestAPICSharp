@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using RestAPI.Dtos;
 using RestAPI.Entities;
@@ -20,17 +21,17 @@ namespace RestAPI.Controller
         }
 
         [HttpGet]
-        public IEnumerable<ItemDto> GetItems()
+        public async Task<IEnumerable<ItemDto>> GetItemsAsync()
         {
-            var items = itemsRepository.GetItems().Select(item => item.AsDto());
+            var items = (await itemsRepository.GetItemsAsync()).Select(item => item.AsDto());
 
             return items;
         }
 
         [HttpGet("{id}")]
-        public ActionResult<ItemDto> GetItem(Guid id)
+        public async Task<ActionResult<ItemDto>> GetItemAsync(Guid id)
         {
-            var item = itemsRepository.GetItem(id);
+            var item = await itemsRepository.GetItemAsync(id);
 
             if (item is null)
             {
@@ -41,7 +42,7 @@ namespace RestAPI.Controller
         }
 
         [HttpPost]
-        public ActionResult<ItemDto> CreateItem(CreateItemDto itemDto)
+        public async Task<ActionResult<ItemDto>> CreateItemAsync(CreateItemDto itemDto)
         {
             Item item = new(){
                 Id = Guid.NewGuid(),
@@ -50,15 +51,15 @@ namespace RestAPI.Controller
                 CreatedDate = DateTimeOffset.UtcNow
             };
 
-            itemsRepository.CreateItem(item);
+            await itemsRepository.CreateItemAsync(item);
 
-            return CreatedAtAction(nameof(GetItem), new { id = item.Id }, item.AsDto());
+            return CreatedAtAction(nameof(GetItemAsync), new { id = item.Id }, item.AsDto());
         }
 
         [HttpPut("{id}")]
-        public ActionResult UpdateItem(Guid id, UpdateItemDto itemDto)
+        public async Task<ActionResult> UpdateItemAsync(Guid id, UpdateItemDto itemDto)
         {
-            var existingItem = itemsRepository.GetItem(id);
+            var existingItem = await itemsRepository.GetItemAsync(id);
 
             if (existingItem is null)
             {
@@ -70,22 +71,22 @@ namespace RestAPI.Controller
                 Price = itemDto.Price
             };
 
-            itemsRepository.UpdateItem(updatedItem);
+            await itemsRepository.UpdateItemAsync(updatedItem);
 
             return NoContent();
         }
 
         [HttpDelete("{id}")]
-        public ActionResult DeleteItem(Guid id)
+        public async Task<ActionResult> DeleteItemAsync(Guid id)
         {
-            var existingItem = itemsRepository.GetItem(id);
+            var existingItem = await itemsRepository.GetItemAsync(id);
 
             if (existingItem is null)
             {
                 return NotFound();
             }
 
-            itemsRepository.DeleteItem(id);
+            await itemsRepository.DeleteItemAsync(id);
 
             return NoContent();
         }
