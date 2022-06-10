@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.AspNetCore.Mvc;
+using RestAPI.Dtos;
 using RestAPI.Entities;
 using RestAPI.Repositories;
 
@@ -10,23 +12,23 @@ namespace RestAPI.Controller
     [Route("items")]
     public class ItemsController : ControllerBase
     {
-        private readonly InMemItemsRepository itemsRepository;
+        private readonly IItemsRepository itemsRepository;
 
-        public ItemsController()
+        public ItemsController(IItemsRepository itemsRepository)
         {
-            itemsRepository = new InMemItemsRepository();
+            this.itemsRepository = itemsRepository;
         }
 
         [HttpGet]
-        public IEnumerable<Item> GetItems()
+        public IEnumerable<ItemDto> GetItems()
         {
-            var items = itemsRepository.GetItems();
+            var items = itemsRepository.GetItems().Select(item => item.AsDto());
 
             return items;
         }
 
         [HttpGet("{id}")]
-        public ActionResult<Item> GetItem(Guid id)
+        public ActionResult<ItemDto> GetItem(Guid id)
         {
             var item = itemsRepository.GetItem(id);
 
@@ -35,7 +37,7 @@ namespace RestAPI.Controller
                 return NotFound();
             }
 
-            return item;
+            return item.AsDto();
         }
     }
 }

@@ -5,7 +5,7 @@ using RestAPI.Entities;
 
 namespace RestAPI.Repositories 
 {
-    public class InMemItemsRepository
+    public class InMemItemsRepository : IItemsRepository
     {
         private readonly List<Item> items = new()
         {
